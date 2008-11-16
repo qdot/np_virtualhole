@@ -21,13 +21,7 @@ public:
 	{
 		virtualhole_init(&m_virtualHole);
 		AddInAnything("Command Input");		
-		AddInInt("Speed Input 1");
-		AddInInt("Speed Input 2");
-		AddInInt("Speed Input 3");
-		AddInInt("Speed Input 4");
-		AddInInt("Speed Input 5");
-		AddInInt("Speed Input 6");
-		AddInInt("Speed Input 7");
+		AddInList("Speed Input (List of 9 ints)");
 		AddOutBang("Bangs on successful connection/command");
 		
 		FLEXT_ADDMETHOD(0, virtualhole_anything);
@@ -88,7 +82,6 @@ protected:
 			}
 			ToOutBang(0);
 		}
-
 		else 
 		{
 			post("Not a valid np_virtualhole message: %s", msg->s_name);
