@@ -17,7 +17,8 @@ class np_virtualhole:
  
 public:
 	// constructor
-	np_virtualhole()
+	np_virtualhole() :
+	m_changeCount(0)
 	{
 		virtualhole_init(&m_virtualHole);
 		AddInAnything("Command Input");		
@@ -35,12 +36,13 @@ public:
 	
 protected:
 	virtualhole_device m_virtualHole;
+	virtualhole_info m_virtualInfo[10];
 	int m_speedValue[9];
+	int m_changeCount;
+	
 
 	void virtualhole_anything(const t_symbol *msg,int argc,t_atom *argv)
-	{
-		
-		
+	{				
 		if(!strcmp(msg->s_name, "open"))
 		{
 			int ret;
@@ -76,10 +78,8 @@ protected:
 		}
 		else if (!strcmp(msg->s_name, "bang"))
 		{			
-			for(int i = 0; i < 9; ++i)
-			{
-				virtualhole_set_speed(&m_virtualHole, i, m_speedValue[i]);
-			}
+			virtualhole_set_speeds(&m_virtualHole, m_virtualInfo, m_changeCount);
+			m_changeCount = 0;				
 			ToOutBang(0);
 		}
 		else 
@@ -100,15 +100,17 @@ protected:
 			post("speed requires a list of 9 integers");
 			return;
 		}
-		m_speedValue[0] = GetInt(argv[0]);
-		m_speedValue[1] = GetInt(argv[1]);
-		m_speedValue[2] = GetInt(argv[2]);
-		m_speedValue[3] = GetInt(argv[3]);
-		m_speedValue[4] = GetInt(argv[4]);
-		m_speedValue[5] = GetInt(argv[5]);
-		m_speedValue[6] = GetInt(argv[6]);
-		m_speedValue[7] = GetInt(argv[7]);
-		m_speedValue[8] = GetInt(argv[8]);
+		m_changeCount = 0;				
+		for(int i = 0; i < 9; ++i)
+		{
+			if(m_speedValue[i] != GetInt(argv[i]))
+			{
+				m_speedValue[i] = GetInt(argv[i]);
+				m_virtualInfo[m_changeCount].motor = i;
+				m_virtualInfo[m_changeCount].speed = GetInt(argv[i]);
+				++m_changeCount;
+			}
+		}
 	}
 
 private:
